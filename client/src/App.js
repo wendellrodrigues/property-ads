@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import styled from "styled-components";
+import { Provider } from "react-redux";
 
-function App() {
+import store from "./store";
+import { loadUser } from "./actions/auth";
+import { setAuthToken } from "./utils/setAuthToken";
+
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+
+const App = () => {
+  const [page, setPage] = useState("Login");
+
+  //App first checks for loaded user by calling action
+  useEffect(() => {
+    store.dispatch(loadUser());
+  }, []);
+
+  //Run this localStorage token check on page load
+  if (localStorage.token) {
+    setAuthToken(localStorage.token);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <Router>
+        <Wrapper>
+          <Content>
+            <Routes>
+              <Route
+                exact
+                path="/"
+                component={Register}
+                page={(page) => setPage("Register")}
+              />
+              <Route
+                exact
+                path="/login"
+                component={Login}
+                page={(page) => setPage("Login")}
+              />
+            </Routes>
+          </Content>
+        </Wrapper>
+      </Router>
+    </Provider>
   );
-}
+};
+
+const Wrapper = styled.div``;
+const Content = styled.div``;
 
 export default App;
