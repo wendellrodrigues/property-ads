@@ -11,7 +11,7 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 
 const App = () => {
-  const [page, setPage] = useState("Login");
+  const [page, setPage] = useState("Register");
 
   //App first checks for loaded user by calling action
   useEffect(() => {
@@ -32,13 +32,13 @@ const App = () => {
               <Route
                 exact
                 path="/"
-                component={Register}
+                element={<Register />}
                 page={(page) => setPage("Register")}
               />
               <Route
                 exact
                 path="/login"
-                component={Login}
+                element={<Login />}
                 page={(page) => setPage("Login")}
               />
             </Routes>

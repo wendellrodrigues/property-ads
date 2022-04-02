@@ -6,5 +6,3 @@ import { login } from "../../actions/auth";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Alert from "../layout/Alert";
-
-rfcp;
