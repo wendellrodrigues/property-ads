@@ -33,7 +33,10 @@ export const Input = styled.div`
   width: 100%;
   height: 45px;
   background: #ffffff;
-  box-shadow: inset 0px 0px 2px #d1d1d1;
+  box-shadow: ${(props) =>
+    props.alert == true ? "0px 0px 10px #f07a7a" : "inset 0px 0px 2px #d1d1d1"};
+  transition: 1s linear;
+
 `;
 
 export const Icon = styled.img`
@@ -53,8 +56,9 @@ export const TextField = styled.input`
   outline: none;
   color: #353535;
   ::placeholder {
-    color: #5d5d5d;
+    color: ${(props) => (props.alert == true ? "#f07a7a" : "#5d5d5d")};
   }
+  line-height: normal;
 `;
 
 export const SubmitButton = styled.div`
