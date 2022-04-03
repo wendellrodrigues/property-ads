@@ -5,7 +5,9 @@ import { register } from "../../actions/auth";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import Alert from "../layout/Alert";
-import AlertText from "../layout/AlertText";
+
+//Hook
+import useOnClickOutside from "../../helpers/hooks";
 
 //Icons
 import UserIcon from "../../static/icons/user.svg";
@@ -17,32 +19,100 @@ import KeyLockIcon from "../../static/icons/key-lock.svg";
 import {
   Wrapper,
   Form,
+  InputWrapper,
   Input,
   Icon,
   TextField,
+  ButtonWrapper,
   SubmitButton,
   SubmitText,
+  AlertWrapper,
+  AlertText,
 } from "../../styles/FormStyles";
 
 const RegisterForm = (props) => {
   const { formData, setFormData, alerts } = props;
   let { name, email, password, confirmPassword } = formData;
 
-  //Submitting the form
-  const onSubmit = async (e) => {
-    if (password !== confirmPassword)
-      props.setAlert("Passwords do not match", "danger");
-    else {
-      props.register({ name, email, password });
-    }
+  //Errors
+  const [nameError, setNameError] = useState(null);
+  const [emailError, setEmailError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState(null);
+
+  //For page clicking
+  const [clicked, setClicked] = useState("");
+
+  //Custom email validation function
+  const validateEmail = (email) => {
+    const regex =
+      /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+    if (regex.test(email) == false) return false;
+    return true;
   };
 
-  //Error messages
-  const nameReq = "Name is required";
-  const emailVal = "Please enter a valid email";
-  const needPass = "Please enter a password with 6 or more characters";
-  const passMatch = "Passwords do not match";
-  const emailInUse = "Email account already in use";
+  //Submitting the form (set client-side errors)
+  const onSubmit = async (e) => {
+    let hasErrors = false;
+    if (name.length == 0) {
+      setNameError("Name is Required");
+      hasErrors = true;
+    }
+    if (validateEmail(email) == false) {
+      setEmailError("Please enter a valid email");
+      hasErrors = true;
+      setFormData({
+        ...formData,
+        password: "",
+        confirmPassword: "",
+        email: "",
+      });
+    }
+    if (password.length < 6) {
+      setPasswordError("Please enter a password with 6 or more characters");
+      hasErrors = true;
+      setFormData({
+        ...formData,
+        password: "",
+        confirmPassword: "",
+      });
+    }
+
+    if (password !== confirmPassword || confirmPassword == "") {
+      setConfirmPasswordError("Passwords do not match");
+      hasErrors = true;
+      setFormData({
+        ...formData,
+        password: "",
+        confirmPassword: "",
+      });
+    }
+
+    if (hasErrors == false && alerts.length == 0)
+      props.register({ name, email, password });
+  };
+
+  //Use Effect hook for clearing form data upon server side form error
+  useEffect(() => {
+    if (alerts.length > 0) {
+      setFormData({
+        ...formData,
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      ref_input_email.current.focus();
+      setClicked("email");
+    }
+  });
+
+  //Clears all client-side errors
+  const clearErrors = () => {
+    setNameError(null);
+    setEmailError(null);
+    setPasswordError(null);
+    setConfirmPasswordError(null);
+  };
 
   //To update form data
   const onChange = (e) => {
@@ -52,91 +122,175 @@ const RegisterForm = (props) => {
     });
   };
 
-  //Checks for alerts (to update component css)
-  const checkAlerts = (type) => {
-    if (type == "nameReq") type = "Name is required";
-    if (type == "emailVal") type = "Please enter a valid email";
-    if (type == "needPass")
-      type = "Please enter a password with 6 or more characters";
-    if (type == "passMatch") type = "Passwords do not match";
-
-    for (alert of alerts) {
-      console.log(alert.msg);
-      if (alert.msg == type) {
-        console.log("found");
-        return true;
-      }
-    }
-    return false;
+  //To handle UI animations for clicked fields
+  const handleClicked = (e) => {
+    setClicked(e);
   };
 
+  //For enter clicks
+  const ref_input_name = useRef();
+  const ref_input_email = useRef();
+  const ref_input_password = useRef();
+  const ref_input_confirmPassword = useRef();
+
+  //For Outside Clicks
+  const ref = useRef();
+  const insideRef = useRef();
+
+  useOnClickOutside(ref, () => {
+    setClicked("");
+  });
+
+  useOnClickOutside(insideRef, () => {
+    setClicked("");
+  });
+
   return (
-    <Wrapper>
+    <Wrapper alerts={alerts}>
       <Form>
-        <Input name="name" alert={checkAlerts("nameReq")}>
-          <Icon src={UserIcon} name="name" />
-          <TextField
-            type="text"
-            placeholder="Name"
-            //placeholder={checkAlerts("nameReq") == true ? nameReq : "Name"}
-            alert={checkAlerts("nameReq")}
+        <InputWrapper>
+          <Input
             name="name"
-            value={name}
-            onChange={(e) => onChange(e)}
-            required
-          />
-        </Input>
-        <Input name="email" alert={checkAlerts("emailVal")}>
-          <Icon src={MailIcon} name="email" />
-          <TextField
-            type="text"
-            placeholder="Email"
-            //placeholder={checkAlerts("emailVal") == true ? emailVal : "Email"}
-            alert={checkAlerts("emailVal")}
+            error={nameError}
+            stateName={clicked}
+            ref={insideRef}
+          >
+            <Icon src={UserIcon} name="email" error={nameError} />
+            <TextField
+              type="text"
+              placeholder="Name"
+              error={nameError}
+              name="name"
+              value={name}
+              onClick={(name) => {
+                handleClicked("name");
+                clearErrors();
+              }}
+              onChange={(e) => onChange(e)}
+              stateName={clicked}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  ref_input_email.current.focus();
+                  handleClicked("email");
+                }
+              }}
+              required
+            />
+          </Input>
+          <AlertText>{nameError}</AlertText>
+        </InputWrapper>
+        <InputWrapper>
+          <Input
             name="email"
-            value={email}
-            onChange={(e) => onChange(e)}
-            required
-          />
-        </Input>
-        <Input name="password" alert={checkAlerts("needPass")}>
-          <Icon src={KeyIcon} name="password" />
-          <TextField
-            type="password"
-            placeholder="Password"
-            // placeholder={
-            //   checkAlerts("needPass") == true ? needPass : "Password"
-            // }
-            alert={checkAlerts("needPass")}
+            error={emailError}
+            stateName={clicked}
+            ref={insideRef}
+          >
+            <Icon src={MailIcon} name="email" error={emailError} />
+            <TextField
+              type="text"
+              placeholder="Email"
+              error={emailError}
+              name="email"
+              value={email}
+              onClick={(name) => {
+                handleClicked("email");
+                clearErrors();
+              }}
+              onChange={(e) => onChange(e)}
+              stateName={clicked}
+              ref={ref_input_email}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  ref_input_password.current.focus();
+                  handleClicked("password");
+                }
+              }}
+              required
+            />
+          </Input>
+          <AlertText>{emailError}</AlertText>
+        </InputWrapper>
+        <InputWrapper>
+          <Input
             name="password"
-            value={password}
-            onChange={(e) => onChange(e)}
-            required
-          />
-        </Input>
-        <AlertText message={needPass} />
-        <Input name="confirmPassword" alert={checkAlerts("passMatch")}>
-          <Icon src={KeyLockIcon} name="confirmPassword" />
-          <TextField
-            type="password"
-            placeholder={
-              checkAlerts("passMatch") == true ? passMatch : "Confirm Password"
-            }
-            alert={checkAlerts("passMatch")}
+            error={passwordError}
+            stateName={clicked}
+            ref={insideRef}
+          >
+            <Icon src={KeyIcon} name="password" error={passwordError} />
+            <TextField
+              type="password"
+              placeholder="Password"
+              error={passwordError}
+              name="password"
+              value={password}
+              onClick={(name) => {
+                handleClicked("password");
+                clearErrors();
+              }}
+              onChange={(e) => onChange(e)}
+              stateName={clicked}
+              ref={ref_input_password}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  ref_input_confirmPassword.current.focus();
+                  handleClicked("confirmPassword");
+                }
+              }}
+              required
+            />
+          </Input>
+          <AlertText>{passwordError}</AlertText>
+        </InputWrapper>
+        <InputWrapper>
+          <Input
             name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => onChange(e)}
-            required
-          />
-        </Input>
-        <AlertText message={passMatch} />
-        <SubmitButton
-          onClick={(formData) => {
-            onSubmit(formData);
-          }}
-        >
-          <SubmitText>Register</SubmitText>
-        </SubmitButton>
+            error={confirmPasswordError}
+            stateName={clicked}
+            ref={insideRef}
+          >
+            <Icon
+              src={KeyLockIcon}
+              name="confirmPassword"
+              error={confirmPasswordError}
+            />
+            <TextField
+              type="password"
+              placeholder="Confirm Password"
+              error={confirmPasswordError}
+              name="confirmPassword"
+              value={confirmPassword}
+              onClick={(name) => {
+                handleClicked("confirmPassword");
+                clearErrors();
+              }}
+              onChange={(e) => onChange(e)}
+              stateName={clicked}
+              ref={ref_input_confirmPassword}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  onSubmit(formData);
+                }
+              }}
+              required
+            />
+          </Input>
+          <AlertText>{confirmPasswordError}</AlertText>
+        </InputWrapper>
+        <AlertWrapper>
+          <Alert />
+        </AlertWrapper>
+
+        <ButtonWrapper>
+          <SubmitButton
+            onClick={(formData) => {
+              onSubmit(formData);
+            }}
+          >
+            <SubmitText>Register</SubmitText>
+          </SubmitButton>
+        </ButtonWrapper>
       </Form>
     </Wrapper>
   );

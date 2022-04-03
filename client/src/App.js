@@ -9,6 +9,7 @@ import { setAuthToken } from "./utils/setAuthToken";
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
+import Navbar from "./components/layout/Navbar";
 
 const App = () => {
   const [page, setPage] = useState("Register");
@@ -27,6 +28,7 @@ const App = () => {
     <Provider store={store}>
       <Router>
         <Wrapper>
+          <Navbar />
           <Content>
             <Routes>
               <Route

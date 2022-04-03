@@ -13,8 +13,8 @@ const Alert = ({ alerts }) =>
   ));
 
 const AlertText = styled.p`
-  color: #e77b7b;
-  font-size: 8px;
+  color: #f07a7a;
+  font-size: 10px;
   font-weight: medium;
   line-height: normal;
 `;
