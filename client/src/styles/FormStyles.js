@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
+  position: relative;
   width: 300px;
   background: #fffff;
   height: auto;
@@ -13,7 +14,6 @@ export const Wrapper = styled.div`
       return "0px 0px 5px #d1d1d1";
     }
   }};
-  //box-shadow: 0px 0px 5px #d1d1d1;
 `;
 
 export const Form = styled.div`

@@ -10,6 +10,9 @@ import { setAuthToken } from "./utils/setAuthToken";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Navbar from "./components/layout/Navbar";
+import Dashboard from "./components/app/Dashboard";
+
+import PrivateRoute from "./components/routing/PrivateRoute";
 
 const App = () => {
   const [page, setPage] = useState("Register");
@@ -43,6 +46,17 @@ const App = () => {
                 element={<Login />}
                 page={(page) => setPage("Login")}
               />
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute
+                    exact
+                    path="/dashboard"
+                    component={Dashboard}
+                    page={(page) => setPage("Dashboard")}
+                  />
+                }
+              />
             </Routes>
           </Content>
         </Wrapper>
@@ -51,7 +65,13 @@ const App = () => {
   );
 };
 
-const Wrapper = styled.div``;
-const Content = styled.div``;
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-rows: 100px 100%;
+`;
+const Content = styled.div`
+  display: grid;
+  position: relative;
+`;
 
 export default App;

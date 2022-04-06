@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from "react";
 import { connect } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import styled from "styled-components";
 import LoginForm from "../forms/LoginForm";
 import PropTypes from "prop-types";
@@ -11,10 +11,10 @@ const Login = (props) => {
     password: "",
   });
 
-  //Redirect if logged in
+  //Navigate if logged in
   if (props.isAuthenticated) {
     console.log("Authenticated");
-    //return <Redirect to="/dashboard"></Redirect>;
+    return <Navigate to="/dashboard" />;
   }
 
   return (
@@ -36,6 +36,7 @@ const Wrapper = styled.div`
   width: 100%;
   height: 100%;
   justify-content: center;
+  margin-top: 200px;
 `;
 
 const Content = styled.div`
@@ -45,8 +46,6 @@ const Content = styled.div`
   width: 90%;
   justify-content: center;
   align-items: top;
-  margin-top: 100px;
-  margin-bottom: 100px;
   padding: 20px;
 `;
 

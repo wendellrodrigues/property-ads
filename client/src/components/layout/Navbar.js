@@ -52,13 +52,13 @@ const Navbar = ({ auth: { isAuthenticated, loading }, logout }) => {
 };
 
 const Wrapper = styled.div`
-  position: absolute;
+  position: relative;
   display: grid;
   grid-template-columns: 44px auto;
-  background: #fae6e6;
+  background: #000000;
   justify-content: space-between;
   align-items: center;
-  height: 120px;
+  height: 90px;
   width: 100%;
   margin-top: 0;
 
